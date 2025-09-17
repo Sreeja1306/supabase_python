@@ -1,0 +1,61 @@
+Online Library Management System (with Supabase/Postgres + Python):
+Build a command-line application in Python that connects to a Supabase Postgres database and performs all database operations as they happen in real life:
+Register students/members.
+Add/update/remove books.
+Borrow/return books (transaction).
+Generate reports (like overdue, most borrowed books).
+🗄️ Database Schema (create in Supabase → SQL Editor)
+-- Students / Members
+CREATE TABLE members (
+    member_id serial PRIMARY KEY,
+    name text NOT NULL,
+    email text UNIQUE NOT NULL,
+    join_date timestamptz DEFAULT NOW()
+);
+ 
+-- Books
+CREATE TABLE books (
+    book_id serial PRIMARY KEY,
+    title text NOT NULL,
+    author text NOT NULL,
+    category text,
+    stock int NOT NULL DEFAULT 1
+);
+ 
+-- Transactions (Borrow/Return)
+CREATE TABLE borrow_records (
+    record_id serial PRIMARY KEY,
+    member_id int REFERENCES members(member_id),
+    book_id int REFERENCES books(book_id),
+    borrow_date timestamptz DEFAULT NOW(),
+    return_date timestamptz
+);
+📝 Python Tasks for Students
+1. Create (Insert)
+Register new members (add_member(name, email)).
+Add new books (add_book(title, author, category, stock)).
+2. Read (Select)
+List all books with availability.
+Search books by title/author/category.
+Show member details and their borrowed books.
+3. Update
+Update book stock (e.g., when more copies are purchased).
+Update member info (e.g., change email).
+4. Delete
+Delete a member (only if no borrowed books).
+Delete a book (only if not borrowed).
+5. Borrow Book (Transaction)
+When a member borrows a book:
+Check if the book has stock available.
+If available → decrease stock by 1, insert record into borrow_records.
+If not available → show error (“Book not available”).
+👉 This must be a transaction (commit both steps, or rollback if one fails).
+6. Return Book (Transaction)
+When a member returns a book:
+Update the borrow_records.return_date.
+Increase book stock by 1.
+👉 Again, both must happen in a single transaction.
+7. Reports (Advanced Selects)
+List top 5 most borrowed books.
+List members with overdue books (borrowed but not returned in >14 days).
+Count total books borrowed per member.
